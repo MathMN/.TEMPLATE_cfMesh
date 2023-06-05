@@ -1,0 +1,20 @@
+#!/bin/bash
+cd "${0%/*}" || exit        # Run from this directory
+
+output_file="surfaces.stl"
+
+# Remove the output file if it already exists
+rm -f "$output_file"
+
+# Loop through each file in the folder with .stl extension
+for file in *.stl; do
+  # Skip directories
+  if [ -f "$file" ]; then
+    echo "Joining $file"
+    # Append the file contents to the output file
+    cat "$file" >> "$output_file"
+    echo >> "$output_file" # Add a newline separator
+  fi
+done
+
+echo "Joining complete. Output file: $output_file"

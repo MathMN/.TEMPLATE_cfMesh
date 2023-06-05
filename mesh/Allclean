@@ -1,0 +1,17 @@
+#!/bin/bash
+cd "${0%/*}" || exit                                # Run from this directory
+. ${WM_PROJECT_DIR:?}/bin/tools/CleanFunctions      # Tutorial clean functions
+#------------------------------------------------------------------------------
+
+case=$(pwd)
+
+# Make 3D mesh
+cd $case/turbine || exit
+./Allclean
+
+
+# Initialize with steady
+cd $case/domain || exit
+./Allclean
+
+#------------------------------------------------------------------------------

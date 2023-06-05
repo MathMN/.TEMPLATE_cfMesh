@@ -1,0 +1,174 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                |
+| \\      /  F ield         | cfMesh: A library for mesh generation          | 
+|  \\    /   O peration     |                                                |
+|   \\  /    A nd           | Author: Franjo Juretic                         | 
+|    \\/     M anipulation  | E-mail: franjo.juretic@c-fields.com            |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    version   2.0;
+    format    ascii;
+    class     dictionary;
+    location  "system";
+    object    meshDict;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#include "$FOAM_CASE/system/initialConditions"
+
+surfaceFile "constant/triSurface/domain.stl";
+
+maxCellSize #eval "0.25 * $diameter";
+boundaryCellSize #eval "0.25 * $diameter";
+
+keepCellsIntersectingBoundary 1;
+
+localRefinement
+{
+}
+
+edgeMeshRefinement
+{
+    // AMI
+	// {	
+	// 	edgeFile "constant/triSurface/AMI.eMesh";
+	// 	additionalRefinementLevels 7;
+	// }
+}
+
+surfaceMeshRefinement
+{
+	// AMI
+	// {	
+	// 	surfaceFile "constant/triSurface/AMI.stl";
+	// 	additionalRefinementLevels 6;
+	// }
+}
+
+boundaryLayers
+{
+	patchBoundaryLayers
+	{
+	    "turbine.*"	
+		{
+			nLayers	10;
+			thicknessRatio	1.2;
+			maxFirstLayerThickness 2e-5;
+			allowDiscontinuity 1;
+		}
+	}
+}
+
+
+// Refinement box turbine
+
+xMin_turbine    #eval "-0.25 * $diameter";
+xMax_turbine    #eval " 0.25 * $diameter";
+
+xCenter_turbine #eval "($xMin_turbine + $xMax_turbine) / 2";
+xSize_turbine   #eval "mag($xMin_turbine) + mag($xMax_turbine)";
+ySize_turbine   #eval " 1.30 * $diameter";
+zSize_turbine   #eval " 1.30 * $diameter";
+
+
+// Refinement box near wake
+
+xMin_nearWake    #eval "-0.70 * $diameter";
+xMax_nearWake    #eval " 2.00 * $diameter";
+
+xCenter_nearWake #eval "($xMin_nearWake + $xMax_nearWake) / 2";
+xSize_nearWake   #eval "mag($xMin_nearWake) + mag($xMax_nearWake)";
+ySize_nearWake   #eval " 1.60 * $diameter";
+zSize_nearWake   #eval " 1.60 * $diameter";
+
+
+// Refinement box far wake
+
+xMin_farWake    #eval "-1.40 * $diameter";
+xMax_farWake    #eval " 6.00 * $diameter";
+
+xCenter_farWake #eval "($xMin_farWake + $xMax_farWake) / 2";
+xSize_farWake   #eval "mag($xMin_farWake) + mag($xMax_farWake)";
+ySize_farWake   #eval " 2.40 * $diameter";
+zSize_farWake   #eval " 2.40 * $diameter";
+
+
+objectRefinements
+{
+	turbine
+	{
+		additionalRefinementLevels 5;
+		type	 box;
+		centre   ($xCenter_turbine 0 0);
+		lengthX	 $xSize_turbine;
+		lengthY	 $ySize_turbine;
+		lengthZ	 $zSize_turbine;
+	}
+
+    nearWake
+    {
+		additionalRefinementLevels 4;
+		type	 box;
+		centre   ($xCenter_nearWake 0 0);
+		lengthX	 $xSize_nearWake;
+		lengthY	 $ySize_nearWake;
+		lengthZ	 $zSize_nearWake;
+    }
+
+    farWake
+    {
+		additionalRefinementLevels 2;
+		type	 box;
+		centre   ($xCenter_farWake 0 0);
+		lengthX	 $xSize_farWake;
+		lengthY	 $ySize_farWake;
+		lengthZ	 $zSize_farWake;
+    }
+}
+
+renameBoundary
+{
+    newPatchNames
+    {
+        xMin
+        {
+            newName inlet;
+            type patch;
+        }
+        xMax
+        {
+            newName outlet;
+            type patch;
+        }
+        yMin
+        {
+            newName walls;
+            type wall;
+        }
+        yMax
+        {
+            newName walls;
+            type wall;
+        }
+        zMin
+        {
+            newName walls;
+            type wall;
+        }
+        zMax
+        {
+            newName walls;
+            type wall;
+        }
+        "AMI.*"
+		{
+            newName AMI_outside;
+			type patch;
+		}
+    }
+}    
+
+// ************************************************************************* //

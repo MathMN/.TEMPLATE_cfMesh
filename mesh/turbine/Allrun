@@ -1,0 +1,39 @@
+#!/bin/bash
+cd "${0%/*}" || exit                                # Run from this directory
+. ${WM_PROJECT_DIR:?}/bin/tools/RunFunctions        # Tutorial run functions
+#------------------------------------------------------------------------------
+
+mpi() {
+    local app_name="$1"
+    local nProc=$(getNumberOfProcessors)
+    local extra_args=("$@")  # Store the remaining arguments in an array    
+    local command="mpirun --oversubscribe -np $nProc --hostfile /home/matheus/OpenFOAM/matheus-v2112/run/machines /usr/lib/openfoam/openfoam2112/bin/tools/foamExec"
+
+    # Add any additional arguments to the command
+    for arg in "${extra_args[@]}"; do
+        command="$command $arg"
+    done
+
+    #echo "Running command: $command"  # Print the command being executed
+    echo "Running $app_name on cluster"  # Print the command being executed
+    eval "$command > log.$app_name"
+}
+
+touch turbine_mesh.foam
+source "system/initialConditions.bash"
+
+restore0Dir
+
+./constant/geometry/join_surfaces
+
+cp -r "constant/geometry/"* "constant/triSurface"
+./system/surfaceFeatureExtract.template
+runApplication surfaceFeatureExtract
+
+runApplication cartesianMesh
+
+runApplication improveMeshQuality
+
+runApplication checkMesh
+
+#------------------------------------------------------------------------------

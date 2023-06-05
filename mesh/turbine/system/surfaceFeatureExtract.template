@@ -1,0 +1,42 @@
+#!/bin/bash
+cd "${0%/*}" || exit                                # Run from this directory
+#------------------------------------------------------------------------------
+
+rm surfaceFeatureExtractDict 2>/dev/null
+echo '/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2112                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      surfaceFeatureExtractDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#include "$FOAM_CASE/system/initialConditions" ' >> surfaceFeatureExtractDict
+
+find ../constant/geometry/ -type f \( -name "*.obj*" -o -name "*.stl*" -o -name "*.stlb*" -o -name "*.vtk*" -o -name "*.ftr*" \) -printf "%f\n" | sed 's=\.gz==' | while read file; do
+    if [[ "$file" == AMI* ]]; then
+        echo "
+        $file
+        {
+            extractionMethod    extractFromSurface;
+            includedAngle       170;
+        }
+            " >> surfaceFeatureExtractDict
+    elif [[ "$file" == turbine* ]]; then
+        echo "
+        $file
+        {
+            extractionMethod    extractFromSurface;
+            includedAngle       170;
+        }
+            " >> surfaceFeatureExtractDict
+    fi
+done

@@ -1,0 +1,96 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                |
+| \\      /  F ield         | cfMesh: A library for mesh generation          | 
+|  \\    /   O peration     |                                                |
+|   \\  /    A nd           | Author: Franjo Juretic                         | 
+|    \\/     M anipulation  | E-mail: franjo.juretic@c-fields.com            |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    version   2.0;
+    format    ascii;
+    class     dictionary;
+    location  "system";
+    object    meshDict;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#include "$FOAM_CASE/system/initialConditions"
+
+surfaceFile "constant/triSurface/surfaces.stl";
+
+maxCellSize #eval "0.25 * $diameter / pow(2,5)";
+boundaryCellSize #eval "0.25 * $diameter / pow(2,5)";
+
+keepCellsIntersectingBoundary 0;
+
+localRefinement
+{
+	"turbine_rotor.*"	
+    {
+        additionalRefinementLevels 1;
+    }
+}
+
+edgeMeshRefinement
+{
+    // trailingEdge
+    // {
+    //     edgeFile "constant/triSurface/turbine_rotor.eMesh";
+    //     additionalRefinementLevels 2;
+    // }
+	
+    // edgeAMI
+	// {	
+	// 	edgeFile "constant/triSurface/AMI.eMesh";
+	// 	additionalRefinementLevels 2;
+	// }
+}
+
+surfaceMeshRefinement
+{
+	// AMI
+	// {	
+	// 	surfaceFile "constant/triSurface/AMI.stl";
+	// 	additionalRefinementLevels 1;
+	// }
+}
+
+boundaryLayers
+{
+	patchBoundaryLayers
+	{
+	    "turbine.*"
+		{
+			nLayers	10;
+			thicknessRatio	1.2;
+			maxFirstLayerThickness 2e-5;
+			allowDiscontinuity 1;
+		}
+	}
+}
+
+objectRefinements
+{
+}
+
+renameBoundary
+{
+    newPatchNames
+    {
+		"turbine_rotor.*"		
+		{
+            newName turbine_rotor;
+			type wall;
+		}
+        "AMI.*"
+		{
+            newName AMI_inside;
+			type patch;
+		}
+    }
+}    
+
+// ************************************************************************* //

@@ -1,0 +1,11 @@
+#!/bin/bash
+cd "${0%/*}" || exit                                # Run from this directory
+. ${WM_PROJECT_DIR:?}/bin/tools/CleanFunctions      # Tutorial clean functions
+#------------------------------------------------------------------------------
+
+cleanCase0
+
+rm -r constant/polyMesh 2>/dev/null
+find constant/triSurface -mindepth 1 -delete
+
+#------------------------------------------------------------------------------
