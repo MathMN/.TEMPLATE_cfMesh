@@ -29,13 +29,13 @@ cp -rf \
 
 restore0Dir
 
-runApplication mapFields /home/matheus/OpenFOAM/matheus-v2112/run/Horizontal_Turbines/turbine_cfMesh_moreRefinement_keep1_working/steady -sourceTime latestTime -consistent
+#runApplication mapFields /home/matheus/OpenFOAM/matheus-v2112/run/Horizontal_Turbines/turbine_cfMesh_moreRefinement_keep1_working/steady -sourceTime latestTime -consistent
 
-runApplication decomposePar -force
+runApplication decomposePar #-force
 
 # Run
 app=$(getApplication)
-mpi $app -parallel
+runParallel $app
 
 # Reconstruct
 runApplication reconstructPar

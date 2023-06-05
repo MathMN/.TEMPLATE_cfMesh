@@ -29,13 +29,13 @@ cp -rf \
 
 restore0Dir
 
-runApplication mapFields ../steady -sourceTime latestTime -consistent
+#runApplication mapFields ../steady -sourceTime latestTime -consistent
 
-runApplication decomposePar -force
+runApplication decomposePar #-force
 
 # Run
 app=$(getApplication)
-mpi $app -parallel
+runParallel $app
 
 # Reconstruct
 runApplication reconstructPar
